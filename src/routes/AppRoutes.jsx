@@ -64,9 +64,9 @@ export default function AppRoutes() {
         <Route path="add-product" element={<AddProduct />} />
         <Route path="products/:id" element={<ViewProduct />} />
         <Route path="settings" element={<Settings />} />
-        <Route path="product-management" element={<ProductManager />} />
+        <Route path="productlist" element={<ProductManager />} />
       </Route>
-
+ 
       {/* 3. ROOT → SIGN IN */}
       <Route path="/" element={<Navigate to="/signin" replace />} />
 
