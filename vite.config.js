@@ -4,7 +4,6 @@ import react from '@vitejs/plugin-react'
 // https://vite.dev/config/
 export default defineConfig({
   plugins: [react()],
-<<<<<<< HEAD
   base: "/fertibaseadmin/",
   server: {
     proxy: {
@@ -15,7 +14,7 @@ export default defineConfig({
       },
     },
   },
-=======
-  base: "/fertibaseadmin/", 
->>>>>>> 6e4784bd823d845afea01386f9916f8d79681e32
 })
+git add .
+git commit -m "fix: resolved merge conflicts"
+npm run build
