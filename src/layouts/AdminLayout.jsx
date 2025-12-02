@@ -25,14 +25,14 @@ export default function AdminLayout() {
   // ---- SIDEBAR MENU ---------------------------------------------
   const menuItems = [
     { to: "/admin", Icon: LayoutDashboard, label: "Dashboard" },
-    { to: "/admin/add-product", Icon: PlusCircle, label: "Add Product" },
+    // { to: "/admin/add-product", Icon: PlusCircle, label: "Add Product" },
     {
       to: "/admin/productlist",
       Icon: ClipboardList,
       label: "Product Management",
     },
     { to: "/admin/jobs", Icon: Briefcase, label: "Job Postings" },
-    { to: "/admin/settings", Icon: Settings, label: "Settings" },
+    // { to: "/admin/settings", Icon: Settings, label: "Settings" },
   ];
 
   // ---- PROFILE MENU ---------------------------------------------
