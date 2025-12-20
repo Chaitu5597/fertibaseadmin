@@ -1,8 +1,5 @@
 const Career = require('../models/Career');
 
-// @desc    Get all careers
-// @route   GET /api/Careers
-// @access  Public
 exports.getCareers = async (req, res) => {
     try {
         const careers = await Career.find().sort({ createdAt: -1 });
@@ -13,32 +10,22 @@ exports.getCareers = async (req, res) => {
     }
 };
 
-// @desc    Get single career by ID
-// @route   GET /api/Careers/:id
-// @access  Public
 exports.getCareer = async (req, res) => {
     try {
         const career = await Career.findById(req.params.id);
-
         if (!career) {
             return res.status(404).json({ message: 'Career not found' });
         }
-
         res.status(200).json(career);
     } catch (error) {
         console.error('Error fetching career:', error);
-
         if (error.kind === 'ObjectId') {
             return res.status(404).json({ message: 'Career not found' });
         }
-
         res.status(500).json({ message: 'Server error while fetching career', error: error.message });
     }
 };
 
-// @desc    Create new career
-// @route   POST /api/Careers
-// @access  Private (add authentication middleware as needed)
 exports.createCareer = async (req, res) => {
     try {
         const {
@@ -62,7 +49,6 @@ exports.createCareer = async (req, res) => {
             applyNote
         } = req.body;
 
-        // Validate required fields
         if (!category || !title) {
             return res.status(400).json({ message: 'Category and title are required' });
         }
@@ -96,9 +82,6 @@ exports.createCareer = async (req, res) => {
     }
 };
 
-// @desc    Update career
-// @route   PUT /api/Careers/:id
-// @access  Private (add authentication middleware as needed)
 exports.updateCareer = async (req, res) => {
     try {
         const {
@@ -123,12 +106,10 @@ exports.updateCareer = async (req, res) => {
         } = req.body;
 
         const career = await Career.findById(req.params.id);
-
         if (!career) {
             return res.status(404).json({ message: 'Career not found' });
         }
 
-        // Update fields
         career.category = category || career.category;
         career.title = title || career.title;
         career.preview = preview !== undefined ? preview : career.preview;
@@ -152,35 +133,26 @@ exports.updateCareer = async (req, res) => {
         res.status(200).json(updatedCareer);
     } catch (error) {
         console.error('Error updating career:', error);
-
         if (error.kind === 'ObjectId') {
             return res.status(404).json({ message: 'Career not found' });
         }
-
         res.status(500).json({ message: 'Server error while updating career', error: error.message });
     }
 };
 
-// @desc    Delete career
-// @route   DELETE /api/Careers/:id
-// @access  Private (add authentication middleware as needed)
 exports.deleteCareer = async (req, res) => {
     try {
         const career = await Career.findById(req.params.id);
-
         if (!career) {
             return res.status(404).json({ message: 'Career not found' });
         }
-
         await Career.findByIdAndDelete(req.params.id);
         res.status(200).json({ message: 'Career deleted successfully', id: req.params.id });
     } catch (error) {
         console.error('Error deleting career:', error);
-
         if (error.kind === 'ObjectId') {
             return res.status(404).json({ message: 'Career not found' });
         }
-
         res.status(500).json({ message: 'Server error while deleting career', error: error.message });
     }
 };

@@ -8,7 +8,8 @@ export const getProducts = async () => {
             throw new Error('Failed to fetch products');
         }
         const data = await response.json();
-        return data;
+        // Transform _id to id for frontend compatibility
+        return data.map(item => ({ ...item, id: item._id }));
     } catch (error) {
         console.error('Error fetching products:', error);
         throw error;
@@ -23,7 +24,7 @@ export const getProduct = async (id) => {
             throw new Error('Failed to fetch product');
         }
         const data = await response.json();
-        return data;
+        return { ...data, id: data._id };
     } catch (error) {
         console.error('Error fetching product:', error);
         throw error;
@@ -44,7 +45,7 @@ export const createProduct = async (productData) => {
             throw new Error('Failed to create product');
         }
         const data = await response.json();
-        return data;
+        return { ...data, id: data._id };
     } catch (error) {
         console.error('Error creating product:', error);
         throw error;
@@ -65,7 +66,7 @@ export const updateProduct = async (id, productData) => {
             throw new Error('Failed to update product');
         }
         const data = await response.json();
-        return data;
+        return { ...data, id: data._id };
     } catch (error) {
         console.error('Error updating product:', error);
         throw error;

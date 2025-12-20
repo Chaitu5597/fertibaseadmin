@@ -14,16 +14,19 @@ import {
   AlertCircle,
   CheckCircle2,
   Users,
-  Box
+  Box,
+  MessageSquare
 } from "lucide-react";
 import { Link } from "react-router-dom";
 import * as productService from "../services/productService";
 import * as jobService from "../services/jobService";
+import * as testimonialService from "../services/testimonialService";
 
 export default function Dashboard() {
   const [loading, setLoading] = useState(true);
   const [products, setProducts] = useState([]);
   const [jobs, setJobs] = useState([]);
+  const [testimonials, setTestimonials] = useState([]);
   const [error, setError] = useState(null);
 
   useEffect(() => {
@@ -35,13 +38,15 @@ export default function Dashboard() {
       setLoading(true);
       setError(null);
 
-      const [productsData, jobsData] = await Promise.all([
+      const [productsData, jobsData, testimonialsData] = await Promise.all([
         productService.getProducts().catch(() => []),
-        jobService.getJobs().catch(() => [])
+        jobService.getJobs().catch(() => []),
+        testimonialService.getTestimonials().catch(() => [])
       ]);
 
       setProducts(Array.isArray(productsData) ? productsData : []);
       setJobs(Array.isArray(jobsData) ? jobsData : []);
+      setTestimonials(Array.isArray(testimonialsData) ? testimonialsData : []);
     } catch (err) {
       setError("Failed to load dashboard data");
       console.error("Dashboard error:", err);
@@ -53,6 +58,7 @@ export default function Dashboard() {
   // Calculate statistics
   const totalProducts = products.length;
   const totalJobs = jobs.length;
+  const totalTestimonials = testimonials.length;
   const activeJobs = jobs.filter(job => job.daysLeft > 0).length;
   const totalPositions = jobs.reduce((sum, job) => sum + (job.positions || 0), 0);
 
@@ -77,6 +83,11 @@ export default function Dashboard() {
       const dateB = new Date(b.createdAt || b.updatedAt || 0);
       return dateB - dateA; // Newest first
     })
+    .slice(0, 3);
+
+  // Recent testimonials (last 3)
+  const recentTestimonials = [...testimonials]
+    .sort((a, b) => new Date(b.date) - new Date(a.date))
     .slice(0, 3);
 
   // Recent jobs (last 3) - sorted by newest first
@@ -104,8 +115,8 @@ export default function Dashboard() {
       link: "/admin/productlist"
     },
     {
-      label: "Job Postings",
-      value: totalJobs,
+      label: "Active Jobs",
+      value: activeJobs,
       icon: Briefcase,
       color: "bg-purple-500",
       textColor: "text-purple-600",
@@ -113,13 +124,13 @@ export default function Dashboard() {
       link: "/admin/jobs"
     },
     {
-      label: "Active Jobs",
-      value: activeJobs,
-      icon: CheckCircle2,
-      color: "bg-emerald-500",
-      textColor: "text-emerald-600",
-      bgColor: "bg-emerald-50",
-      link: "/admin/jobs"
+      label: "Testimonials",
+      value: totalTestimonials,
+      icon: MessageSquare,
+      color: "bg-pink-500",
+      textColor: "text-pink-600",
+      bgColor: "bg-pink-50",
+      link: "/admin/testimonials"
     },
     {
       label: "Open Positions",
@@ -149,7 +160,7 @@ export default function Dashboard() {
       <div>
         <h1 className="text-3xl font-extrabold text-slate-900 tracking-tight">Dashboard</h1>
         <p className="text-slate-500 mt-2 text-sm font-medium">
-          Overview of your products and job postings
+          Overview of your products, jobs, and testimonials
         </p>
       </div>
 
@@ -184,16 +195,17 @@ export default function Dashboard() {
       </div>
 
       {/* Main Content Grid */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {/* Product Categories */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+
+        {/* Column 1: Product Categories */}
         <div className="bg-white p-6 rounded-2xl shadow-sm border border-slate-100">
           <div className="flex items-center justify-between mb-6">
             <h2 className="text-lg font-bold text-slate-900 flex items-center gap-2">
               <Box size={20} className="text-blue-600" />
-              Product Categories
+              Categories
             </h2>
             <Link to="/admin/productlist" className="text-sm text-blue-600 hover:text-blue-700 font-semibold">
-              View All →
+              All →
             </Link>
           </div>
           {Object.keys(productCategories).length > 0 ? (
@@ -212,146 +224,62 @@ export default function Dashboard() {
             </div>
           ) : (
             <div className="text-center py-8 text-slate-400">
-              <Package size={48} className="mx-auto mb-3 opacity-30" />
-              <p>No products yet</p>
+              <p>No data</p>
             </div>
           )}
         </div>
 
-        {/* Job Categories */}
+        {/* Column 2: Recent Products */}
         <div className="bg-white p-6 rounded-2xl shadow-sm border border-slate-100">
           <div className="flex items-center justify-between mb-6">
             <h2 className="text-lg font-bold text-slate-900 flex items-center gap-2">
-              <Briefcase size={20} className="text-purple-600" />
-              Job Categories
-            </h2>
-            <Link to="/admin/jobs" className="text-sm text-purple-600 hover:text-purple-700 font-semibold">
-              View All →
-            </Link>
-          </div>
-          {Object.keys(jobCategories).length > 0 ? (
-            <div className="space-y-3">
-              {Object.entries(jobCategories).map(([category, count]) => (
-                <div key={category} className="flex items-center justify-between p-3 bg-slate-50 rounded-xl hover:bg-slate-100 transition-colors">
-                  <div className="flex items-center gap-3">
-                    <div className="w-2 h-2 rounded-full bg-purple-500"></div>
-                    <span className="font-medium text-slate-700">{category}</span>
-                  </div>
-                  <span className="px-3 py-1 bg-purple-100 text-purple-700 rounded-full text-sm font-bold">
-                    {count}
-                  </span>
-                </div>
-              ))}
-            </div>
-          ) : (
-            <div className="text-center py-8 text-slate-400">
-              <Briefcase size={48} className="mx-auto mb-3 opacity-30" />
-              <p>No jobs posted yet</p>
-            </div>
-          )}
-        </div>
-
-        {/* Recent Products */}
-        <div className="bg-white p-6 rounded-2xl shadow-sm border border-slate-100">
-          <div className="flex items-center justify-between mb-6">
-            <h2 className="text-lg font-bold text-slate-900 flex items-center gap-2">
-              <Package size={20} className="text-blue-600" />
+              <Package size={20} className="text-emerald-600" />
               Recent Products
             </h2>
-            <Link to="/admin/productlist" className="text-sm text-blue-600 hover:text-blue-700 font-semibold">
-              View All →
-            </Link>
           </div>
-          {recentProducts.length > 0 ? (
-            <>
-              <div className="space-y-3">
-                {recentProducts.map((product) => (
-                  <div key={product._id || product.id} className="flex items-center gap-3 p-3 bg-slate-50 rounded-xl hover:bg-slate-100 transition-colors">
-                    <div className="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center flex-shrink-0">
-                      <Package size={20} className="text-blue-600" />
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <h3 className="font-semibold text-slate-900 truncate">{product.name}</h3>
-                      <p className="text-sm text-slate-500 truncate">{product.category || "Uncategorized"}</p>
-                    </div>
-                    {product.price && (
-                      <span className="text-sm font-bold text-blue-600">₹{product.price}</span>
-                    )}
+          <div className="space-y-3">
+            {recentProducts.length > 0 ? (
+              recentProducts.map((product) => (
+                <div key={product._id || product.id} className="flex items-center gap-3 p-3 bg-slate-50 rounded-xl">
+                  <div className="w-10 h-10 bg-emerald-100 rounded-lg flex items-center justify-center text-emerald-600 font-bold shrink-0">
+                    P
                   </div>
-                ))}
-              </div>
-              {remainingProducts > 0 && (
-                <Link
-                  to="/admin/productlist"
-                  className="block mt-4 p-3 bg-blue-50 hover:bg-blue-100 rounded-xl text-center transition-colors"
-                >
-                  <span className="text-blue-700 font-semibold text-sm">
-                    + {remainingProducts} more product{remainingProducts !== 1 ? 's' : ''}
-                  </span>
-                </Link>
-              )}
-            </>
-          ) : (
-            <div className="text-center py-8 text-slate-400">
-              <Package size={48} className="mx-auto mb-3 opacity-30" />
-              <p>No products yet</p>
-            </div>
-          )}
+                  <div className="min-w-0">
+                    <h4 className="font-semibold text-slate-900 truncate">{product.name}</h4>
+                    <p className="text-xs text-slate-500 truncate">{product.category}</p>
+                  </div>
+                </div>
+              ))
+            ) : (<p className="text-slate-400 text-center py-4">No products</p>)}
+          </div>
         </div>
 
-        {/* Recent Jobs */}
+        {/* Column 3: Recent Testimonials */}
         <div className="bg-white p-6 rounded-2xl shadow-sm border border-slate-100">
           <div className="flex items-center justify-between mb-6">
             <h2 className="text-lg font-bold text-slate-900 flex items-center gap-2">
-              <Briefcase size={20} className="text-purple-600" />
-              Recent Job Postings
+              <MessageSquare size={20} className="text-pink-600" />
+              Testimonials
             </h2>
-            <Link to="/admin/jobs" className="text-sm text-purple-600 hover:text-purple-700 font-semibold">
-              View All →
+            <Link to="/admin/testimonials" className="text-sm text-pink-600 hover:text-pink-700 font-semibold">
+              All →
             </Link>
           </div>
-          {recentJobs.length > 0 ? (
-            <>
-              <div className="space-y-3">
-                {recentJobs.map((job) => (
-                  <div key={job._id || job.id} className="p-3 bg-slate-50 rounded-xl hover:bg-slate-100 transition-colors">
-                    <div className="flex items-start justify-between mb-2">
-                      <h3 className="font-semibold text-slate-900">{job.title}</h3>
-                      <span className="px-2 py-1 bg-purple-100 text-purple-700 rounded-full text-xs font-bold">
-                        {job.type}
-                      </span>
-                    </div>
-                    <div className="flex items-center gap-3 text-xs text-slate-500">
-                      <span className="flex items-center gap-1">
-                        <MapPin size={12} />
-                        {job.location || "Remote"}
-                      </span>
-                      <span className="flex items-center gap-1">
-                        <Calendar size={12} />
-                        {job.daysLeft} days left
-                      </span>
-                    </div>
+          <div className="space-y-3">
+            {recentTestimonials.length > 0 ? (
+              recentTestimonials.map((t) => (
+                <div key={t.id} className="flex items-center gap-3 p-3 bg-slate-50 rounded-xl">
+                  <img src={t.imageSrc} alt="" className="w-10 h-10 rounded-full object-cover bg-pink-100" />
+                  <div className="min-w-0">
+                    <h4 className="font-semibold text-slate-900 truncate">{t.title}</h4>
+                    <p className="text-xs text-slate-500 truncate">{t.name}</p>
                   </div>
-                ))}
-              </div>
-              {remainingJobs > 0 && (
-                <Link
-                  to="/admin/jobs"
-                  className="block mt-4 p-3 bg-purple-50 hover:bg-purple-100 rounded-xl text-center transition-colors"
-                >
-                  <span className="text-purple-700 font-semibold text-sm">
-                    + {remainingJobs} more job{remainingJobs !== 1 ? 's' : ''}
-                  </span>
-                </Link>
-              )}
-            </>
-          ) : (
-            <div className="text-center py-8 text-slate-400">
-              <Briefcase size={48} className="mx-auto mb-3 opacity-30" />
-              <p>No jobs posted yet</p>
-            </div>
-          )}
+                </div>
+              ))
+            ) : (<p className="text-slate-400 text-center py-4">No testimonials</p>)}
+          </div>
         </div>
+
       </div>
     </div>
   );

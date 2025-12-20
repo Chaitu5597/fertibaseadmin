@@ -7,6 +7,7 @@ import ViewProduct from "../pages/ViewProduct";
 import Settings from "../pages/Settings";
 import ProductManager from "../pages/ProductManager";
 import JobManager from "../pages/JobManager";
+import Testimonials from "../pages/Testimonials";
 import SignInPage from "../pages/SignInPage";
 import ProtectedRoute from "../components/ProtectedRoute";
 
@@ -32,6 +33,7 @@ export default function AppRoutes() {
         <Route path="settings" element={<Settings />} />
         <Route path="productlist" element={<ProductManager />} />
         <Route path="jobs" element={<JobManager />} />
+        <Route path="testimonials" element={<Testimonials />} />
       </Route>
 
       {/* 3. ROOT → SIGN IN */}

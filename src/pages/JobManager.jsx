@@ -8,7 +8,6 @@ import {
 import * as jobService from '../services/jobService';
 
 export default function JobManager() {
-    // --- STATE MANAGEMENT ---
     const [jobs, setJobs] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
@@ -41,7 +40,6 @@ export default function JobManager() {
     const [editing, setEditing] = useState(false);
     const [searchTerm, setSearchTerm] = useState("");
 
-    // --- FETCH JOBS ON MOUNT ---
     useEffect(() => {
         fetchJobs();
     }, []);
@@ -51,7 +49,6 @@ export default function JobManager() {
             setLoading(true);
             setError(null);
             const data = await jobService.getJobs();
-            // Normalize _id to id if needed
             const normalizedData = Array.isArray(data) ? data.map(j => ({ ...j, id: j._id || j.id })) : [];
             setJobs(normalizedData);
         } catch (err) {
@@ -71,15 +68,15 @@ export default function JobManager() {
         e.preventDefault();
         setActionLoading(true);
         try {
-            const safeForm = { ...form };
-            const jobId = safeForm.id || safeForm._id;
+            const { id, _id, __v: ___v, createdAt: _createdAt, updatedAt: _updatedAt, ...jobData } = form;
+            const jobId = id || _id;
 
             if (!editing) {
-                const newJob = await jobService.createJob(safeForm);
+                const newJob = await jobService.createJob(jobData);
                 const normalizedJob = { ...newJob, id: newJob._id || newJob.id };
                 setJobs([...jobs, normalizedJob]);
             } else {
-                const updatedJob = await jobService.updateJob(jobId, safeForm);
+                const updatedJob = await jobService.updateJob(jobId, jobData);
                 const normalizedJob = { ...updatedJob, id: updatedJob._id || updatedJob.id };
                 setJobs(jobs.map(j => j.id === jobId ? normalizedJob : j));
             }
@@ -113,7 +110,6 @@ export default function JobManager() {
         setModalOpen(true);
     };
 
-    // --- HELPER FOR ARRAYS ---
     const addItem = (key, item) => setForm({ ...form, [key]: [...form[key], item] });
     const removeItem = (key, index) => setForm({ ...form, [key]: form[key].filter((_, i) => i !== index) });
     const updateItem = (key, index, value) => {
@@ -122,7 +118,6 @@ export default function JobManager() {
         setForm({ ...form, [key]: newArray });
     };
 
-    // --- FILTERED JOBS ---
     const filteredJobs = jobs.filter(job =>
         job.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
         job.category.toLowerCase().includes(searchTerm.toLowerCase())
@@ -130,7 +125,6 @@ export default function JobManager() {
 
     return (
         <div className="min-h-screen bg-gray-50/50 p-6 lg:p-10 font-sans text-slate-800">
-            {/* === HEADER === */}
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 mb-10">
                 <div>
                     <h1 className="text-3xl font-extrabold text-slate-900 tracking-tight">Job Postings</h1>
@@ -138,7 +132,7 @@ export default function JobManager() {
                 </div>
                 <button
                     onClick={() => { resetForm(); setModalOpen(true); }}
-                    className="bg-blue-600 text-white px-5 py-2.5 rounded-xl font-semibold hover:bg-blue-700 transition-all shadow-lg shadow-blue-600/20 flex items-center gap-2"
+                    className="bg-emerald-600 text-white px-5 py-2.5 rounded-xl font-semibold hover:bg-emerald-700 transition-all shadow-lg shadow-emerald-600/20 flex items-center gap-2"
                 >
                     <Plus size={20} /> Post New Job
                 </button>
@@ -157,6 +151,14 @@ export default function JobManager() {
                     />
                 </div>
             </div>
+
+            {/* === ERROR ALERT === */}
+            {error && (
+                <div className="bg-red-50 border border-red-100 text-red-700 px-4 py-3 rounded-xl mb-6 flex items-center gap-2">
+                    <AlertCircle size={20} />
+                    <p>{error}</p>
+                </div>
+            )}
 
             {/* === JOB LIST === */}
             <div className="grid grid-cols-1 gap-6">
@@ -424,7 +426,7 @@ export default function JobManager() {
                         {/* Modal Footer */}
                         <div className="px-8 py-5 border-t border-slate-100 bg-white flex justify-end gap-4 sticky bottom-0 z-10">
                             <button onClick={() => { setModalOpen(false); resetForm(); }} className="px-6 py-3 rounded-xl text-slate-600 font-semibold hover:bg-slate-50 transition-colors">Cancel</button>
-                            <button type="submit" form="job-form" disabled={actionLoading} className="bg-blue-600 text-white px-8 py-3 rounded-xl font-semibold hover:bg-blue-700 shadow-lg shadow-blue-600/20 transition-all flex items-center gap-2 transform active:scale-95 disabled:opacity-70 disabled:cursor-not-allowed">
+                            <button type="submit" form="job-form" disabled={actionLoading} className="bg-emerald-600 text-white px-8 py-3 rounded-xl font-semibold hover:bg-emerald-700 shadow-lg shadow-emerald-600/20 transition-all flex items-center gap-2 transform active:scale-95 disabled:opacity-70 disabled:cursor-not-allowed">
                                 <Save size={18} /> {actionLoading ? "Saving..." : (editing ? "Save Changes" : "Post Job")}
                             </button>
                         </div>
