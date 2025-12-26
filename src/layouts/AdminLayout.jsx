@@ -14,13 +14,13 @@ import {
   Briefcase
 } from "lucide-react";
 import { useState } from "react";
-
+ 
 export default function AdminLayout() {
   const navigate = useNavigate();
   const location = useLocation();
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const [sidebarOpen, setSidebarOpen] = useState(false);
-  const [isLoggedIn, setIsLoggedIn] = useState(true); // change to false to show "Sign In"
+  const [isLoggedIn, setIsLoggedIn] = useState(true); 
 
   // ---- SIDEBAR MENU ---------------------------------------------
   const menuItems = [
@@ -37,7 +37,7 @@ export default function AdminLayout() {
     // { to: "/admin/settings", Icon: Settings, label: "Settings" },
   ];
 
-  // ---- PROFILE MENU ---------------------------------------------
+  // ---- PROFILE MENU ---------------------------------------------  
   const profileMenu = isLoggedIn
     ? [
       { label: "Profile", onClick: () => navigate("/admin/profile"), icon: User },
@@ -49,7 +49,7 @@ export default function AdminLayout() {
           alert("Signed out!");
           navigate("/login");
         },
-        icon: LogOut,
+        icon: LogOut,  
       },
     ]
     : [
@@ -95,7 +95,7 @@ export default function AdminLayout() {
             className="ml-auto lg:hidden text-gray-500"
             onClick={() => setSidebarOpen(false)}
           >
-            <X size={24} />
+                      <X size={24} />
           </button>
         </div>
 

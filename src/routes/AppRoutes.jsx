@@ -34,7 +34,7 @@ export default function AppRoutes() {
         <Route path="productlist" element={<ProductManager />} />
         <Route path="jobs" element={<JobManager />} />
         <Route path="testimonials" element={<Testimonials />} />
-      </Route>
+      </Route> 
 
       {/* 3. ROOT → SIGN IN */}
       <Route path="/" element={<Navigate to="/signin" replace />} />

@@ -21,7 +21,7 @@ exports.getCareer = async (req, res) => {
         console.error('Error fetching career:', error);
         if (error.kind === 'ObjectId') {
             return res.status(404).json({ message: 'Career not found' });
-        }
+        }   
         res.status(500).json({ message: 'Server error while fetching career', error: error.message });
     }
 };
@@ -49,10 +49,11 @@ exports.createCareer = async (req, res) => {
             applyNote
         } = req.body;
 
-        if (!category || !title) {
-            return res.status(400).json({ message: 'Category and title are required' });
-        }
 
+
+        if (!category || !title || !preview || !desc || !about || !responsibilities || !requirements || !skills || !tools || !experience || !salary || !location || !mode || !type || !positions || !daysLeft || !niceToHave || !applyNote) {
+            return res.status(400).json({ message: 'All fields are required' });
+        }
         const career = new Career({
             category,
             title,
